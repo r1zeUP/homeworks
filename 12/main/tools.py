@@ -1,4 +1,5 @@
 import json
+from json import JSONDecodeError
 
 
 class PostHandler:
@@ -10,8 +11,9 @@ class PostHandler:
         try:
             with open(self.path, "r", encoding="utf-8") as file:
                 posts = json.load(file)
-        except Exception as e:
-            return posts, e
+        except JSONDecodeError:
+            return posts, "Ошибка при получении данных из json"
+
         return posts, None
 
     def search_posts(self, substr):
@@ -22,11 +24,11 @@ class PostHandler:
                 posts.append(post)
         return posts, error
 
-    def add_post(self, post):
-        posts = self.load_posts()
-        posts.append(post)
-        self.save_post_to_json(posts)
-
     def save_post_to_json(self, posts):
         with open(self.path, "w", encoding="utf-8") as file:
             json.dump(posts, file)
+
+    def add_post(self, post):
+        posts, error = self.load_posts()
+        posts.append(post)
+        self.save_post_to_json(posts)
